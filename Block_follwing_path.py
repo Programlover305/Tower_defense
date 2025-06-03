@@ -179,18 +179,29 @@ class Bullet:
         self.y = y
         self.speed = speed
         self.color = color
-        self.size = size
+        self.size = size  # Diameter
+        self.radius = size // 2
         self.angle = angle
+        self.hit = False  # Optional: to track collision state
 
-    def render(self):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
+    def render(self, screen):
+        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
     def move(self):
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
 
     def get_hitbox(self):
-        return pygame.Rect(self.x, self.y, self.size, self.size)
+        return pygame.Rect(
+            self.x - self.radius,
+            self.y - self.radius,
+            self.radius * 2,
+            self.radius * 2
+        )
+
+    def hit_target(self):
+        self.hit = True
+
 
 class fusion1:
     def __init__(self, x, y, color, size):
@@ -661,10 +672,9 @@ while True:
 
                 for bullet in turret.bullets[:]:
                     bullet.move()
-                    bullet.draw(screen)
+                    bullet.render(screen)
                     for target, block_group, gold_reward in targets:
                         for block in block_group:
-                            bullet.update()
                             if block.alive:
                                 bullet_rect = pygame.Rect(bullet.x - bullet.radius, bullet.y - bullet.radius, bullet.radius * 2, bullet.radius * 2)
                                 if bullet_rect.colliderect(block.get_hitbox()):
